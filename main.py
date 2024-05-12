@@ -19,8 +19,8 @@ def main():
     params = config()
 
     data = get_hh_data(employers_id)
-    create_database('headhunter', params)
-    save_data_to_database(data, 'headhunter', params)
+    create_database('hhru', params)
+    save_data_to_database(data, 'hhru', params)
 
     # db = DBManager(params)
 
