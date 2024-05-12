@@ -34,26 +34,25 @@ def create_database(database_name: str, params: dict) -> None:
     cur = conn.cursor()
 
     try:
-        cur.execute(f'DROP DATABASE {database_name}')
+        cur.execute(f"DROP DATABASE {database_name}")
     except psycopg2.errors.InvalidCatalogName:
         pass
-    cur.execute(f'CREATE DATABASE {database_name}')
-
-    # cur.execute(f'DROP DATABASE {database_name}')
+    cur.execute(f"CREATE DATABASE {database_name}")
 
     cur.close()
     conn.close()
 
-    conn = psycopg2.connect(dbname='postgres', **params)
+    conn = psycopg2.connect(dbname=database_name, **params)
+
     with conn.cursor() as cur:
-        cur.execute(f"""
+        cur.execute("""
             CREATE TABLE IF NOT EXISTS employers (
                 employer_id INT PRIMARY KEY,
                 employer_name VARCHAR NOT NULL,
                 description TEXT,
                 area VARCHAR,
                 url VARCHAR NOT NULL
-            );
+            )
         """)
 
     with conn.cursor() as cur:
