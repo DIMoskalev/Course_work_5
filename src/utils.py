@@ -2,6 +2,8 @@ from typing import Any
 import requests
 import psycopg2
 
+from src.vacancy import Vacancy
+
 
 def get_hh_data(employers_id: list[str]) -> list[dict[str, Any]]:
     """Получение данных о компаниях и вакансиях с помощью API hh.ru"""
@@ -49,9 +51,9 @@ def create_database(database_name: str, params: dict) -> None:
             CREATE TABLE IF NOT EXISTS employers (
                 employer_id INT PRIMARY KEY,
                 employer_name VARCHAR NOT NULL,
-                description TEXT,
                 area VARCHAR,
-                url VARCHAR NOT NULL
+                url VARCHAR NOT NULL,
+                description TEXT
             )
         """)
 
@@ -87,20 +89,21 @@ def save_data_to_database(data: list[dict[str, Any]], database_name: str, params
             employer_data = employer['employers']
             cur.execute(
                 """
-                INSERT INTO employers (employer_id, employer_name, description, area, url)
+                INSERT INTO employers (employer_id, employer_name, area, url, description)
                 VALUES (%s, %s, %s, %s, %s)
                 """,
-                (employer_data['id'], employer_data['name'], employer_data['description'],
-                 employer_data['area']['name'], employer_data['alternate_url'])
+                (employer_data['id'], employer_data['name'], employer_data['area']['name'],
+                 employer_data['alternate_url'], employer_data['description'])
             )
 
             vacancies_data = employer['vacancies']
-            for vacancy in vacancies_data:
+            vacancies_list = Vacancy.data_conversion(vacancies_data)
+            for vacancy in vacancies_list:
                 cur.execute(
                     """
-                    INSERT INTO vacancies (vacancy_id, vacancy_name, professional_roles, experience, employment, schedule,
+                    INSERT INTO vacancies (vacancy_id, employer_id, vacancy_name, professional_roles, experience, employment, schedule,
                     salary_from, salary_to, currency, requirement, responsibility, url)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     vacancy.data_for_db()
                 )
