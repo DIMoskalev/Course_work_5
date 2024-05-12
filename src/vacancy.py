@@ -1,9 +1,10 @@
 class Vacancy:
     """Класс для работы с вакансиями"""
 
-    def __init__(self, vacancy_id, name, professional_roles, experience, employment, schedule,
+    def __init__(self, vacancy_id, employer_id, name, professional_roles, experience, employment, schedule,
                  salary_from, salary_to, currency, requirement, responsibility, url):
         self.vacancy_id = vacancy_id
+        self.employer_id = employer_id
         self.name = name
         self.professional_roles = professional_roles
         self.experience = experience
@@ -22,6 +23,7 @@ class Vacancy:
         emp_list = []
         for vacancy in vacancies_data:
             vacancy_id = vacancy['id']
+            employer_id = vacancy['employer']['id']
             name = cls.check_data_str(vacancy['name'])
             professional_roles = cls.check_data_str(vacancy['professional_roles'][0]['name'])
             experience = cls.check_data_str(vacancy.get('experience').get('name'))
@@ -38,7 +40,7 @@ class Vacancy:
             requirement = cls.check_data_str(vacancy['snippet']['requirement'])
             responsibility = cls.check_data_str(vacancy['snippet']['responsibility'])
             url = vacancy['alternate_url']
-            object_vac = cls(vacancy_id, name, professional_roles, experience, employment, schedule,
+            object_vac = cls(vacancy_id, employer_id, name, professional_roles, experience, employment, schedule,
                              salary_from, salary_to, currency, requirement,
                              responsibility, url)
             emp_list.append(object_vac)
@@ -51,6 +53,7 @@ class Vacancy:
         returned_list = []
         for vacancy in vacancies_list:
             vacancy_id = vacancy['id']
+            employer_id = vacancy['employer_id']
             name = vacancy['name']
             professional_roles = vacancy['professional_roles']
             experience = vacancy['experience']
@@ -62,16 +65,16 @@ class Vacancy:
             requirement = vacancy['requirement']
             responsibility = vacancy['responsibility']
             url = vacancy['url']
-            vacancy_object = cls(vacancy_id, name, professional_roles, experience, employment, schedule,
+            vacancy_object = cls(vacancy_id, employer_id, name, professional_roles, experience, employment, schedule,
                                  salary_from, salary_to, currency, requirement,
                                  responsibility, url)
             returned_list.append(vacancy_object)
         return returned_list
 
     def data_for_db(self):
-        return [self.vacancy_id, self.name, self.professional_roles, self.experience, self.employment, self.schedule,
-                self.salary_from, self.salary_to, self.currency, self.requirement, self.responsibility,
-                self.url]
+        return [self.vacancy_id, self.employer_id, self.name, self.professional_roles, self.experience,
+                self.employment, self.schedule, self.salary_from, self.salary_to, self.currency,
+                self.requirement, self.responsibility, self.url]
 
     def get_salary(self):
         """Метод, направленный на обработку истинности диапазона заработной платы"""
