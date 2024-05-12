@@ -101,8 +101,8 @@ def save_data_to_database(data: list[dict[str, Any]], database_name: str, params
             for vacancy in vacancies_list:
                 cur.execute(
                     """
-                    INSERT INTO vacancies (vacancy_id, employer_id, vacancy_name, professional_roles, experience, employment, schedule,
-                    salary_from, salary_to, currency, requirement, responsibility, url)
+                    INSERT INTO vacancies (vacancy_id, employer_id, vacancy_name, professional_roles, experience, 
+                    employment, schedule, salary_from, salary_to, currency, requirement, responsibility, url)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     vacancy.data_for_db()
