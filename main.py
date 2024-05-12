@@ -1,30 +1,28 @@
-from config import config
-from src.dbmanager import DBManager
-from src.utils import get_hh_data, save_data_to_database, create_database
+from src.utils import work_with_data_from_db, work_with_vacancies_from_api, work_with_vacancies_from_json
 
 
 def main():
-    employers_id = [
-        '3127',  # ПАО Мегафон
-        '2748',  # ПАО Ростелеком
-        '665467',  # ГринАтом
-        '84585',  # Avito
-        '1942330',  # Пятерочка
-        '3707941',  # Цитадель
-        '1057',  # Лаборатория Касперского
-        '1740',  # Яндекс
-        '87021',  # WILDBERRIES
-        '15478',  # VK
-    ]
-    params = config()
-
-    data = get_hh_data(employers_id)
-    create_database('hhru', params)
-    save_data_to_database(data, 'hhru', params)
-
-    # db = DBManager(params)
-
-# Здесь будет основной код работы консольной программы
+    print("Добро пожаловать в программу по поиску и работе с вакансиями!")
+    while True:
+        start_input = input('Чтобы начать работу программы нажмите Enter и следуйте инструкциям.\n'
+                            'В любой момент вы можете ввести "стоп" или "stop" и программа завершит работу.\n'
+                            'Пока что не весь доп. функционал добавлен, обновления будут в ближайшее время.\n')
+        while start_input not in ['stop', 'стоп']:
+            user_input = input('Выберите, в каком виде вы хотите работать с вакансиями.\n'
+                               '1 - Программа предоставит возможность работать с вакансиями в БД PostgreSQL\n'
+                               '2 - Программа предоставит возможность работать с вакансиями с сайта hh.ru\n'
+                               '3 - Программа предоставит возможность работать с вакансиями из json-файла\n').lower()
+            if user_input == '1':
+                work_with_data_from_db()
+            if user_input == '2':
+                work_with_vacancies_from_api()
+            elif user_input == '3':
+                work_with_vacancies_from_json()
+            elif user_input in ['stop', 'стоп']:
+                quit()
+            else:
+                print('Нужно выбрать режим работы из представленных ранее (либо 1, либо 2)\n')
+        break
 
 
 if __name__ == "__main__":
