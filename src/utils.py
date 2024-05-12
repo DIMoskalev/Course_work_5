@@ -1,6 +1,7 @@
 from typing import Any
 import requests
 import psycopg2
+from config import config
 
 from src.vacancy import Vacancy
 
@@ -109,3 +110,47 @@ def save_data_to_database(data: list[dict[str, Any]], database_name: str, params
                 )
     conn.commit()
     conn.close()
+
+
+def create_database_and_save_data_to_database(database_name: str):
+    employers_id = [  # id интересующих компаний
+        '3127',  # ПАО Мегафон
+        '2748',  # ПАО Ростелеком
+        '665467',  # ГринАтом
+        '84585',  # Avito
+        '1942330',  # Пятерочка
+        '3707941',  # Цитадель
+        '1057',  # Лаборатория Касперского
+        '1740',  # Яндекс
+        '87021',  # WILDBERRIES
+        '15478',  # VK
+    ]
+    params = config()
+
+    data = get_hh_data(employers_id)
+    create_database(database_name, params)
+    save_data_to_database(data, database_name, params)
+
+
+def work_with_data_from_db():
+    dbname = 'hhru'
+    create_database_and_save_data_to_database(dbname)
+    # db = DBManager(params)
+
+
+def work_with_vacancies_from_api():
+    """Функция позволяет пользователю получать данные по вакансиям
+    с сайта hh.ru с помощью api."""
+    print('Добро пожаловать в программу поиска вакансий с сайта hh.ru!\n'
+          'Данная часть программы позволяет работать с api hh.ru\n'
+          'Функции программы находятся в разработке и будут доступны позже.\n'
+          'Пока что можете воспользоваться работой с вакансиями из БД PostgreSQL\n\n\n')
+
+
+def work_with_vacancies_from_json():
+    """Функция позволяет пользователю работать с вакансиями
+    из json-файла"""
+    print("Добро пожаловать в программу работы с вакансиями из "
+          "созданного в программе по работе с api hh.ru json-файла!\n"
+          "Функции программы находятся в разработке и будут доступны позже.\n"
+          "Пока что можете воспользоваться работой с вакансиями из БД PostgreSQL\n\n\n")
