@@ -37,7 +37,7 @@ class Vacancy:
             responsibility = cls.check_data_str(vacancy['snippet']['responsibility'])
             url = vacancy['alternate_url']
             object_vac = cls(name, professional_roles, experience, employment, schedule,
-                             employer, salary_from, salary_to, currency, requirement,
+                             salary_from, salary_to, currency, requirement,
                              responsibility, url)
             emp_list.append(object_vac)
         return emp_list
