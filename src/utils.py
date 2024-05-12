@@ -39,33 +39,40 @@ def create_database(database_name: str, params: dict) -> None:
         pass
     cur.execute(f'CREATE DATABASE {database_name}')
 
+    # cur.execute(f'DROP DATABASE {database_name}')
+
     cur.close()
     conn.close()
 
     conn = psycopg2.connect(dbname='postgres', **params)
     with conn.cursor() as cur:
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS employers(
-                employer_id SERIAL PRIMARY KEY,
+        cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS employers (
+                employer_id INT PRIMARY KEY,
                 employer_name VARCHAR NOT NULL,
                 description TEXT,
                 area VARCHAR,
                 url VARCHAR NOT NULL
-            )
+            );
         """)
 
     with conn.cursor() as cur:
         cur.execute("""
-            CREATE TABLE IF NOT EXISTS vacancies(
-                vacancy_id SERIAL PRIMARY KEY,
-                vacancy_name VARCHAR NOT NULL,
+            CREATE TABLE IF NOT EXISTS vacancies (
+                vacancy_id INT PRIMARY KEY,
                 employer_id INT REFERENCES employers(employer_id) NOT NULL,
-                employment VARCHAR,
-                experience VARCHAR,
+                vacancy_name VARCHAR NOT NULL,
                 professional_roles VARCHAR,
-                salary INT,
+                experience VARCHAR,
+                employment VARCHAR,
+                schedule VARCHAR,
+                salary_from INT,
+                salary_to INT,
+                currency VARCHAR,
+                requirement TEXT,
+                responsibility TEXT,
                 url VARCHAR NOT NULL
-            )
+            );
         """)
 
     conn.commit()
@@ -74,3 +81,29 @@ def create_database(database_name: str, params: dict) -> None:
 
 def save_data_to_database(data: list[dict[str, Any]], database_name: str, params: dict) -> None:
     """Сохранение данных о компаниях и вакансиях в базу данных"""
+    conn = psycopg2.connect(dbname=database_name, **params)
+
+    with conn.cursor() as cur:
+        for employer in data:
+            employer_data = employer['employers']
+            cur.execute(
+                """
+                INSERT INTO employers (employer_id, employer_name, description, area, url)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (employer_data['id'], employer_data['name'], employer_data['description'],
+                 employer_data['area']['name'], employer_data['alternate_url'])
+            )
+
+            vacancies_data = employer['vacancies']
+            for vacancy in vacancies_data:
+                cur.execute(
+                    """
+                    INSERT INTO vacancies (vacancy_id, vacancy_name, professional_roles, experience, employment, schedule,
+                    salary_from, salary_to, currency, requirement, responsibility, url)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    vacancy.data_for_db()
+                )
+    conn.commit()
+    conn.close()
