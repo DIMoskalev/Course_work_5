@@ -39,9 +39,9 @@ class DBManager():
         with self.conn:
             self.cur.execute(
                 """
-                SELECT(AVG(salary_from) + AVG(salary_to)) / 2 as avg_salary
+                SELECT(AVG(salary_from) + AVG(salary_to)) / 2 as tot_avg_salary
                 FROM vacancies
-                WHERE salary_from > 0 and salary_to > 0 and currency = "руб.";
+                WHERE salary_from > 0 and salary_to > 0 and currency = 'руб.';
                 """
             )
             return self.cur.fetchone()[0]
@@ -51,7 +51,12 @@ class DBManager():
         with self.conn:
             self.cur.execute(
                 """
-                
+                SELECT vacancy_name, employer_name, salary_from, salary_to, currency, vacancies.url
+                FROM vacancies
+                JOIN employers USING(employer_id)
+                WHERE (salary_from + salary_to)/2 > (SELECT (AVG(salary_from) + AVG(salary_to)) / 2 as tot_avg_salary 
+                FROM vacancies WHERE salary_from > 0 and salary_to > 0 and currency = 'руб.')
+                and salary_from > 0 and salary_to > 0 and currency = 'руб.'; 
                 """
             )
 
