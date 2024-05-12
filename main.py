@@ -16,16 +16,15 @@ def main():
         '87021',  # WILDBERRIES
         '15478',  # VK
     ]
-
     params = config()
 
     data = get_hh_data(employers_id)
-    create_database('hh', params)
-    save_data_to_database(data, 'hh', params)
+    create_database('headhunter', params)
+    save_data_to_database(data, 'headhunter', params)
 
-    db = DBManager(params)
+    # db = DBManager(params)
 
-    # Здесь будет основной код работы консольной программы
+# Здесь будет основной код работы консольной программы
 
 
 if __name__ == "__main__":
