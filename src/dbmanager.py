@@ -39,9 +39,12 @@ class DBManager():
         with self.conn:
             self.cur.execute(
                 """
-                
+                SELECT(AVG(salary_from) + AVG(salary_to)) / 2 as avg_salary
+                FROM vacancies
+                WHERE salary_from > 0 and salary_to > 0 and currency = "руб.";
                 """
             )
+            return self.cur.fetchone()[0]
 
     def get_vacancies_with_higher_salary(self):
         """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям"""
