@@ -59,12 +59,18 @@ class DBManager():
                 and salary_from > 0 and salary_to > 0 and currency = 'руб.'; 
                 """
             )
+            return self.cur.fetchall()
 
-    def get_vacancies_with_keyword(self):
+    def get_vacancies_with_keyword(self, keyword):
         """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python"""
         with self.conn:
             self.cur.execute(
-                """
-                
+                f"""
+                SELECT vacancy_name, employer_name, salary_from, salary_to, currency, vacancies.url
+                FROM vacancies
+                JOIN employers USING(employer_id)
+                WHERE employer_name LIKE '%{keyword}%' or requirement LIKE '%{keyword}%' 
+                or responsibility LIKE '%{keyword}%';
                 """
             )
+            return self.cur.fetchall()
