@@ -26,7 +26,7 @@ class DBManager():
         with self.conn:
             self.cur.execute(
                 """
-                SELECT employer_name, vacancy_name, salary_from, salary_to
+                SELECT employer_name, vacancy_name, salary_from, salary_to,
                 currency, vacancies.url
                 FROM vacancies
                 JOIN employers USING(employer_id);
