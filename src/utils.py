@@ -2,6 +2,7 @@ from typing import Any
 import requests
 import psycopg2
 from config import config
+from src.dbmanager import DBManager
 
 from src.vacancy import Vacancy
 
@@ -128,14 +129,73 @@ def create_database_and_save_data_to_database(database_name: str):
     params = config()
 
     data = get_hh_data(employers_id)
+    print('1. Данные по вакансиям и работодателям получены с сайта hh.ru')
     create_database(database_name, params)
+    print(f'2. Созданы таблицы employers и vacancies в БД {database_name}')
     save_data_to_database(data, database_name, params)
+    print(f'3. Данные вакансий и работодателй загружены в БД {database_name}\n')
+    db = DBManager(params)
+    return db
 
 
 def work_with_data_from_db():
-    dbname = 'hhru'
-    create_database_and_save_data_to_database(dbname)
-    # db = DBManager(params)
+    """Функция позволяет пользователю взаимодействовать с БД PostgreSQL, в которую были записаны
+    вакансии выбранных ранее 10 компаний с сайта hh.ru с помощью api."""
+    print('Добро пожаловать в программу, которая работает с БД PostgreSQL\n')
+    dbname = input('Перед началом работы в программе, введите название базы данных, которое вы хотите использовать:\n')
+    db = create_database_and_save_data_to_database(dbname)
+    user_input = 0
+
+    while user_input not in ['back', 'назад']:
+        user_input = input(f'Выберите, какую команду хотите выполнить c БД {dbname}:\n'
+                           '1 - Получить список всех компаний и количество вакансий у каждой компании.\n'
+                           '2 - Получить список всех вакансий с указанием названия компании, названия вакансии'
+                           ' и зарплаты, а также ссылки на вакансию.\n'
+                           '3 - Получить среднюю зарплату по вакансиям.\n'
+                           '4 - Получить список всех вакансий, у которых зарплата выше средней по всем вакансиям.\n'
+                           '5 - Получить список всех вакансий, в названии которых содержатся введенные ключевые слова,'
+                           'например "python"\n')
+        if user_input in ['1', '2', '3', '4', '5']:
+            if user_input == '1':
+                data_companies_and_vacancies = db.get_companies_and_vacancies_count()
+                i = 1
+                for employer in data_companies_and_vacancies:
+                    print(f'{i}.Количество вакансий у работодателя(компании) {employer[0]} - {employer[1]} шт.')
+                    i += 1
+                print('')
+            if user_input == '2':
+                data_vacancies_detail = db.get_all_vacancies()
+                for vacancy in data_vacancies_detail:
+                    print(f'Работодатель(компания) - {vacancy[0]}\n'
+                          f'Название вакансии - {vacancy[1]}\n'
+                          f'Зарплата - от {vacancy[2]} до {vacancy[3]} {vacancy[4]}\n'
+                          f'Ссылка на вакансию - {vacancy[5]}\n')
+                print('')
+            if user_input == '3':
+                avg_salary = db.get_avg_salary()
+                print(f'Средняя зарплата по всем вакансиям из БД - {int(avg_salary)}\n')
+            if user_input == '4':
+                vacancies_with_higher_salary = db.get_vacancies_with_higher_salary()
+                for vacancy_avg_salary in vacancies_with_higher_salary:
+                    print(f'Работодатель(компания) - {vacancy_avg_salary[0]}\n'
+                          f'Название вакансии - {vacancy_avg_salary[1]}\n'
+                          f'Зарплата - от {vacancy_avg_salary[2]} до {vacancy_avg_salary[3]} {vacancy_avg_salary[4]}\n'
+                          f'Ссылка на вакансию - {vacancy_avg_salary[5]}\n')
+                print('')
+            if user_input == '5':
+                user_keyword = input('Введите ключевое слово для поиска:\n')
+                vacancies_by_keyword = db.get_vacancies_with_keyword(user_keyword)
+                for vacancy_by_keyword in vacancies_by_keyword:
+                    print(f'Работодатель(компания) - {vacancy_by_keyword[0]}\n'
+                          f'Название вакансии - {vacancy_by_keyword[1]}\n'
+                          f'Зарплата - от {vacancy_by_keyword[2]} до {vacancy_by_keyword[3]} {vacancy_by_keyword[4]}\n'
+                          f'Ссылка на вакансию - {vacancy_by_keyword[5]}\n')
+            if user_input in ['stop', 'стоп']:
+                quit()
+        if user_input in ['stop', 'стоп']:
+            quit()
+        else:
+            print('Введите порядковый номер операции, которую хотите выполнить')
 
 
 def work_with_vacancies_from_api():
